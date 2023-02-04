@@ -264,5 +264,7 @@ public class Game {
         System.out.println("Type\"help\" if you need assistance");
         System.out.println();
         System.out.println("We will print a long room description here");
+        System.out.println("In order to win you have to bring the complete artifact back to the center square.");
+        System.out.println("You can ");
     }
 }
