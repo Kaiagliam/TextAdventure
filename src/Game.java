@@ -1,7 +1,15 @@
+import java.util.Scanner;
+
 public class Game {
     private Room currentRoom;
     private Parser parser;
     private Player player;
+    Item book  = new Item();
+    Item pizza = new Item();
+    Item flower = new Item();
+    Item artifactOne = new Item();
+    Item artifactTwo = new Item();
+    Item obj2 = new Item();
     public Game() {
         player = new Player();
         parser = new Parser();
@@ -46,11 +54,7 @@ public class Game {
         djsRestaurant.setExit("southwest", centerSquare);
 
 
-        Item book  = new Item();
-        Item flower = new Item();
-        Item food = new Item();
-        Item artifact = new Item();
-        Item obj2 = new Item();
+        djsRestaurant.setItem("Pizza", pizza);
         player.setItem("one", book);
         centerSquare.setItem("two", obj2);
 
@@ -96,8 +100,8 @@ public class Game {
             case READ:
                 read(command);
                 break;
-            case CRAFT:
-                craft(command);
+            case COMBINE:
+                combine(command);
                 break;
         }
         return wantToQuit;
@@ -130,15 +134,90 @@ public class Game {
             currentRoom.setItem(key, dropItem);
         }
     }
-    private void eat(Command command){
+    private void eat(Command command)
+    {
+        int hungerBar = 0;
 
-    }
-    private void read(Command command) {
+        if(!command.hasSecondWord())
+        {
+            System.out.println("Eat what? ");
+            return;
+        }
 
-    }
-    private void craft(Command command){
+        String eatCommand = command.getSecondWord();
+        Item thingToEat = player.getItem(eatCommand);
 
+        for(hungerBar = 0; hungerBar < 1; hungerBar++)
+        {
+            if(thingToEat.equals("Pizza"))
+            {
+                hungerBar += 1;
+            }
+        }
+
+        if(hungerBar == 1)
+        {
+            System.out.println("You are now full. You discover a hidden item in the food you ate. ");
+            System.out.println("You gain a scroll. [try reading it] ");
+            player.setItem("Scroll", new Item());
+        }
     }
+    private void read(Command command)
+    {
+        if(!command.hasSecondWord())
+        {
+            System.out.println("Read what? ");
+            return;
+        }
+
+        String readCommand = command.getSecondWord();
+        Item thingToRead = player.getItem(readCommand);
+
+        if(!thingToRead.equals(book))
+        {
+            System.out.println("You can't read " + command.getSecondWord());
+        }
+        else
+        {
+            System.out.println("You have read the book.");
+            System.out.println("Information in this book includes: ");
+            System.out.println("You have to find the missing two artifacts, combine the two so that the artifact is complete, and bring it back to the center square in order to escape.");
+        }
+    }
+    public void combine(Command command) {
+        if(!command.hasSecondWord())
+        {
+            System.out.println("Combine what? ");
+            return;
+        }
+
+        String combinedCommand = command.getSecondWord();
+        Item combinedItem = player.getItem(combinedCommand);
+
+
+        if(!combinedItem.equals(artifactOne))
+        {
+            System.out.println("You can't apply " + command.getSecondWord());
+        }
+
+        String combineArtifact = "";
+
+        if(combinedItem.equals(artifactOne))
+        {
+            Scanner kb = new Scanner(System.in);
+            System.out.println("What would you like to apply it with? (an item IN your inventory)");
+            combineArtifact = kb.nextLine();
+        }
+        if(combineArtifact.equals("artifactTwo"))
+        {
+            player.getItem("Artifact One");
+            player.getItem("Artifact Two");
+            player.setItem("Complete Artifact", new Item ());
+            System.out.println("The two artifacts have been combined.");
+            System.out.println("They now have become one complete artifact.");
+        }
+    }
+
     private void printHelp() {
         System.out.println("You are lost. You are alone. You wander");
         System.out.println("You are in a garden maze");
