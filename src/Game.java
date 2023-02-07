@@ -4,13 +4,13 @@ public class Game {
     private Room currentRoom;
     private Parser parser;
     private Player player;
-    Item book  = new Item();
-    Item pizza = new Item();
-    Item flower = new Item();
-    Item artifactOne = new Item();
-    Item artifactTwo = new Item();
-
+    Item Book  = new Item();
+    Item Pizza = new Item();
+    Item ArtifactOne = new Item();
+    Item ArtifactTwo = new Item();
+    Item Scroll = new Item();
     Room museum;
+    Room pedestalRoom;
     boolean wantToQuit;
     public Game() {
         player = new Player();
@@ -26,38 +26,47 @@ public class Game {
         Room centerSquare = new Room("The center square is a big space that is used for recreational use.", "The center square is split up into four different sections. Between those four sections is a large fountain in the center with a cross at the top . Each of the four sections is made up of grass and has a statue laying around. One section is where people go to walk their dog, talk, and relax. One holds basketball and tennis courts. One holds a football/soccer field. The last one has its own little park. ");
         Room iceCreamParlor= new Room("A cold destination with a delicious ending", " The Ice Cream Parlor has been there for over 50 years. It is usually always packed with customers. It has an old 90’s vibe to it. An item can be found here");
         Room movieTheater = new Room(" A place where multiple people gather to see different types of movies.", "The movie theater is made up of 2 booths. Each booth is watching a different movie. When you walk in you can smell and hear popcorn being made. You can hear laughter and screams around you as the walls of the theater are thin. There is someone named Simon that you must find in one of the booths that you must talk to for some information.");
-        Room museum = new Room("An old shop that smells as if you are in a forest.", "The Flower shop was an old shack that belonged to an old man that said crazy stories about many different things. It has one entrance that’s in the front. When you are inside you are greeted with plenty of different flowers around you. The aroma is very forest-like as there are different types of flowers. The owner claims “that his flowers are key to life”.");
+        museum = new Room("A place with many ancient things.", "You are now in the museum. In front of you, there are a bunch of different objects around you. Each from a different time in history. In the distance, you can see two large pillars that look like they are from Rome. Your answers lie here.");
         Room djsRestaurant = new Room(" A place to chill and get stuffed.", " D.J’s restaurant is top of the line. It is a very high dining place with a simple aesthetic. On top of that the food is affordable and delicious. The aroma that fills the restaurant is irresistible and just makes you so hungry. People claim once you start eating you can't stop which makes this place so successful. You have to keep eating until you find the missing item.");
-        Room boothOne  = new Room("You are in booth one.", "Booth one is watching Black Panther. Too bad there is no one watching this movie. Try looking for another booth since there is nothing to do at this one. ");
-        Room boothTwo  = new Room("You are in booth two.", "Booth two has no movie or people except one person named Simon. Simon is a little crazy, but you must talk to him if you want to continue to try to find the other items. Be aware of Simon though. We don't know what he could do. ");
+        Room boothOne  = new Room("You are in booth one.", "Booth one is watching Black Panther. Too bad there is no one watching this movie. You have reached a dead end. Try looking for another booth since there is nothing to do at this one. ");
+        Room boothTwo  = new Room("You are in booth two.", "Booth two has no movie or people. On the other hand, you see two objects that you might be looking for. You might want to take a look at the objects and see what they are. Be careful though. If you already got help, you know what the objects are and what to do with them.");
+        pedestalRoom = new Room("You are now in the room that contains the pedestals.","");
+
 
         centerSquare.setExit("southwest", iceCreamParlor);
         centerSquare.setExit("northeast", movieTheater);
         centerSquare.setExit("southeast", museum);
         centerSquare.setExit("northwest", djsRestaurant);
 
-        iceCreamParlor.setExit("north", centerSquare);
+        iceCreamParlor.setExit("northeast", centerSquare);
         iceCreamParlor.setExit("east", museum);
         iceCreamParlor.setExit("north", djsRestaurant );
 
         movieTheater.setExit("south", museum);
         movieTheater.setExit("southwest", centerSquare);
         movieTheater.setExit("west", djsRestaurant);
-        movieTheater.setExit("go to booth 1", boothOne );
-        movieTheater.setExit("go to booth 2", boothTwo);
+        movieTheater.setExit("boothOne", boothOne);
+        movieTheater.setExit("boothTwo", boothTwo);
 
+        boothOne.setExit("movieTheater", movieTheater);
+        boothTwo.setExit("movieTheater", movieTheater);
 
+        museum.setExit("northwest", centerSquare);
         museum.setExit("north", movieTheater);
-        museum.setExit("east", iceCreamParlor);
-        museum.setExit("northeast", centerSquare);
+        museum.setExit("west", iceCreamParlor);
+        museum.setExit("PedestalRoom", pedestalRoom);
+
+        pedestalRoom.setExit("Museum", museum);
 
         djsRestaurant.setExit("south", iceCreamParlor);
-        djsRestaurant.setExit("west", movieTheater);
-        djsRestaurant.setExit("southwest", centerSquare);
+        djsRestaurant.setExit("east", movieTheater);
+        djsRestaurant.setExit("southeast", centerSquare);
 
 
-        djsRestaurant.setItem("Pizza", pizza);
-        iceCreamParlor.setItem("Book", book);
+        djsRestaurant.setItem("Pizza", Pizza);
+        iceCreamParlor.setItem("Book", Book);
+        boothTwo.setItem("ArtifactOne", ArtifactOne);
+        boothTwo.setItem("ArtifactTwo", ArtifactTwo);
 
         currentRoom = centerSquare;
     }
@@ -117,9 +126,11 @@ public class Game {
 
         if (grabItem == null) {
             System.out.println("You can't grab " + command.getSecondWord());
-        } else {
+        }
+        else {
             player.setItem(key, grabItem);
         }
+        System.out.println("You have grabbed " + command.getSecondWord());
     }
     private void drop(Command command) {
         if(!command.hasSecondWord()) {
@@ -134,6 +145,7 @@ public class Game {
         else {
             currentRoom.setItem(key, dropItem);
         }
+        System.out.println("You have dropped" + command.getSecondWord());
     }
     private void eat(Command command)
     {
@@ -148,19 +160,15 @@ public class Game {
         String eatCommand = command.getSecondWord();
         Item thingToEat = player.getItem(eatCommand);
 
-        for(hungerBar = 0; hungerBar < 1; hungerBar++)
-        {
-            if(thingToEat.equals("Pizza"))
-            {
-                hungerBar += 1;
-            }
+        if(thingToEat.equals(Pizza)) {
+            hungerBar += 1;
         }
 
         if(hungerBar == 1)
         {
             System.out.println("You are now full. You discover a hidden item in the food you ate. ");
             System.out.println("You gain a scroll. [try reading it] ");
-            player.setItem("Scroll", new Item());
+            player.setItem("Scroll", Scroll);
         }
     }
     private void read(Command command)
@@ -174,15 +182,24 @@ public class Game {
         String readCommand = command.getSecondWord();
         Item thingToRead = player.getItem(readCommand);
 
-        if(!thingToRead.equals(book))
+        if(!thingToRead.equals(Book))
         {
             System.out.println("You can't read " + command.getSecondWord());
         }
-        else
-        {
+        else {
             System.out.println("You have read the book.");
             System.out.println("Information in this book includes: ");
-            System.out.println("You have to find the missing two artifacts, combine the two so that the artifact is complete, and bring it back to the center square in order to escape.");
+            System.out.println("You have to find the missing two artifacts and combine the two so that the artifact is complete.");
+        }
+
+        if(!thingToRead.equals(Scroll)) {
+            System.out.println("You can't read " + command.getSecondWord());
+        }
+        if (thingToRead.equals(Scroll)) {
+            System.out.println("You have read the scroll.");
+            System.out.println("Information in this scroll includes: ");
+            System.out.println("You have to go the museum with the complete artifact and place it on one of the pillars in order to escape.");
+            System.out.println("The artifacts are in one of the booths in the movie theater.");
         }
     }
     public void combine(Command command) {
@@ -196,21 +213,20 @@ public class Game {
         Item combinedItem = player.getItem(combinedCommand);
 
 
-        if(!combinedItem.equals(artifactOne))
+        if(!combinedItem.equals(ArtifactOne))
         {
             System.out.println("You can't apply " + command.getSecondWord());
         }
 
         String combineArtifact = "";
 
-        if(combinedItem.equals(artifactOne))
+        if(combinedItem.equals(ArtifactOne))
         {
             Scanner kb = new Scanner(System.in);
             System.out.println("What would you like to apply it with? (an item IN your inventory)");
             combineArtifact = kb.nextLine();
         }
-        if(combineArtifact.equals("artifactTwo"))
-        {
+        if(combineArtifact.equals("ArtifactTwo")) {
             player.getItem("ArtifactOne");
             player.getItem("ArtifactTwo");
             player.setItem("CompleteArtifact", new Item ());
@@ -221,7 +237,6 @@ public class Game {
 
     private void printHelp() {
         System.out.println("You are lost. You are alone. You wander");
-        System.out.println("You are in a garden maze");
         System.out.println();
         System.out.println("Your command words are:");
         parser.showCommands();
@@ -253,10 +268,20 @@ public class Game {
         if (nextRoom == null) {
             System.out.println("There is no door!");
         }
+        else {
+            currentRoom = nextRoom;
+            System.out.println(currentRoom.getsShortDescription());
+        }
+        if(nextRoom.equals(pedestalRoom)) {
+            if (!player.getInventory().containsKey("CompleteArtifact")) {
+                System.out.println("The door is locked, until you get the complete artifact this door will not open. ");
+                return;
+            }
+        }
         String LeftOrRight = "";
-        if (nextRoom.equals(museum)) {
+        if (nextRoom.equals(pedestalRoom)) {
             Scanner kb = new Scanner(System.in);
-            System.out.println("You are in a museum. ");
+            System.out.println("You are now in the pedestal room.");
             System.out.println("There is a pedestal on the left and right. Place the COMPLETE artifact on the right pedestal. You will die if you place it on the wrong one.");
             System.out.println("Which pedestal would you like to place the COMPLETE artifact on ? [Left/Right] ");
             LeftOrRight = kb.nextLine();
@@ -278,10 +303,6 @@ public class Game {
                 System.out.println("");
                 wantToQuit =  true;
             }
-        }
-        else {
-            currentRoom = nextRoom;
-            System.out.println(currentRoom.getsShortDescription());
         }
     }
     private void printWelcome() {
